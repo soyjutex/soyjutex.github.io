@@ -423,47 +423,78 @@
   if (netCanvas) {
     var nctx = netCanvas.getContext("2d");
     var netRunning = false;
-    var agentData = [
-      { name: "JUTEX", role: "nucleo de coordinacion", core: true },
-      { name: "Cerebro", role: "investigacion y sintesis", core: false },
-      { name: "Fnanzas", role: "finanzas y metricas", core: false },
-      { name: "Hermes", role: "mensajeria y coordinacion", core: false },
-      { name: "Ingeniero", role: "automatizacion y control", core: false },
-      { name: "WebSoyjuli", role: "desarrollo web", core: false },
-      { name: "Jefe", role: "orquestacion de agentes", core: false },
-      { name: "Noticias", role: "radar de noticias", core: false },
-      { name: "IngenieroGoose", role: "ingenieria y sistemas", core: false },
-      { name: "IngenieroZeroClaw", role: "operaciones", core: false }
+
+    var DEPTS = [
+      { key: "VENTAS", name: "Ventas", code: "NOVA", color: "#fbbf24", role: "cualifica · cotiza · cierra la venta" },
+      { key: "MARKETING", name: "Marketing", code: "PULSAR", color: "#f472b6", role: "campanas · contenido · alcance" },
+      { key: "FINANZAS", name: "Finanzas", code: "LEDGER", color: "#4ade80", role: "cashflow · cobros · control financiero" },
+      { key: "LEGAL", name: "Legal", code: "CLAUSE", color: "#a78bfa", role: "contratos · cumplimiento · riesgo" },
+      { key: "RRHH", name: "RRHH", code: "HUMAN", color: "#fca5a5", role: "talento · onboarding · cultura" },
+      { key: "SOPORTE", name: "Soporte", code: "SAFE", color: "#38bdf8", role: "atencion real al cliente, 24/7" },
+      { key: "OPERACIONES", name: "Operaciones", code: "SYNC", color: "#2dd4bf", role: "logistica · supply chain · ejecucion" },
+      { key: "DATOS", name: "Datos", code: "ORACLE", color: "#60a5fa", role: "BI · metricas · prediccion" },
+      { key: "TECNOLOGIA", name: "Tecnologia", code: "CORE", color: "#94a3b8", role: "integraciones · seguridad · deploy" }
     ];
-    var nodes = [], edges = [];
-    var netW = 0, netH = 0, hoverNode = -1;
+
+    var MSGS = [
+      ["VENTAS", "FINANZAS", "contrato 332 firmado · emitir cobro"],
+      ["VENTAS", "MARKETING", "lead caliente · prioridad alta"],
+      ["MARKETING", "DATOS", "audiencia segmentada · pedir modelo"],
+      ["FINANZAS", "VENTAS", "credito aprobado · segui el cierre"],
+      ["FINANZAS", "OPERACIONES", "pago recibido · libera el envio"],
+      ["OPERACIONES", "SOPORTE", "envio en transito · tracking 882"],
+      ["SOPORTE", "VENTAS", "upsell detectado · cliente N°98"],
+      ["DATOS", "MARKETING", "prediccion demanda Q4 · entregada"],
+      ["DATOS", "OPERACIONES", "stock critico · SKU-14"],
+      ["LEGAL", "FINANZAS", "terminos verificados · sin riesgo"],
+      ["RRHH", "TECNOLOGIA", "onboarding listo · dar accesos"],
+      ["TECNOLOGIA", "OPERACIONES", "deploy OK · sistemas en verde"],
+      ["OPERACIONES", "FINANZAS", "costo logistica · informado"],
+      ["SOPORTE", "OPERACIONES", "reclamo N°41 · necesito tracking"],
+      ["TECNOLOGIA", "DATOS", "cluster estable · heartbeat ok"]
+    ];
+
+    var nodes = [], edges = [], nodeByKey = {};
+    var packets = [], ripples = [];
+    var hoverNode = -1, focusNode = -1;
+    var netW = 0, netH = 0, msgSent = 0;
+
+    function nodeIndex(key) { return nodeByKey[key]; }
+    function activeIdx(idx) { return hoverNode === idx || focusNode === idx; }
+
+    function link(a, b) { edges.push([nodeIndex(a), nodeIndex(b)]); }
 
     function netLayout() {
       nodes = [];
+      nodeByKey = {};
       var cx = netW / 2, cy = netH / 2;
-      var rx = Math.min(netW, netH) * 0.36;
-      var ry = Math.min(netW, netH) * 0.3;
-      agentData.forEach(function (a) {
-        if (a.core) {
-          nodes.push({ x: cx, y: cy, a: a });
-        } else {
-          var ang = (nodes.length - 1) / (agentData.length - 1) * Math.PI * 2 - Math.PI / 2;
-          nodes.push({
-            x: cx + Math.cos(ang) * rx,
-            y: cy + Math.sin(ang) * ry,
-            a: a
-          });
-        }
+      var r = Math.min(netW, netH) * 0.36;
+      nodes.push({ key: "CORE", name: "JUTEX", code: "ORG", color: "#eaf2ff", role: "coordinacion central · todas las areas en sincronia", core: true, x: cx, y: cy });
+      nodeByKey.CORE = 0;
+      DEPTS.forEach(function (d, i) {
+        var ang = i / DEPTS.length * Math.PI * 2 - Math.PI / 2;
+        nodes.push({ key: d.key, name: d.name, code: d.code, color: d.color, role: d.role, core: false, x: cx + Math.cos(ang) * r, y: cy + Math.sin(ang) * r });
+        nodeByKey[d.key] = i + 1;
       });
       edges = [];
       for (var i = 1; i < nodes.length; i++) edges.push([0, i]);
-      edges.push([4, 5], [2, 6], [1, 2], [3, 6], [7, 1], [4, 9], [8, 5]);
+      link("VENTAS", "FINANZAS");
+      link("VENTAS", "MARKETING");
+      link("MARKETING", "DATOS");
+      link("SOPORTE", "VENTAS");
+      link("FINANZAS", "OPERACIONES");
+      link("OPERACIONES", "SOPORTE");
+      link("OPERACIONES", "DATOS");
+      link("OPERACIONES", "TECNOLOGIA");
+      link("LEGAL", "FINANZAS");
+      link("RRHH", "TECNOLOGIA");
+      link("TECNOLOGIA", "DATOS");
     }
 
     function netResize() {
-      var r = netCanvas.getBoundingClientRect();
-      netW = Math.max(200, r.width);
-      netH = Math.max(240, r.height);
+      var re = netCanvas.getBoundingClientRect();
+      netW = Math.max(200, re.width);
+      netH = Math.max(240, re.height);
       netCanvas.width = netW * dpr;
       netCanvas.height = netH * dpr;
       nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -473,96 +504,287 @@
     function netHud() {
       var el = $("#netHud");
       if (!el) return;
-      var nd = hoverNode >= 0 ? nodes[hoverNode] : agentData[0];
+      var idx = hoverNode >= 0 ? hoverNode : (focusNode >= 0 ? focusNode : 0);
+      var nd = nodes[idx] || nodes[0];
       var name = el.children[0], role = el.children[1];
-      if (name) name.textContent = nd.name;
-      if (role) role.textContent = hoverNode >= 0 ? "/ " + nd.a.role : "/ nucleo central";
+      if (!name || !role) return;
+      if (idx === 0) {
+        name.textContent = "JUTEX Core";
+        role.textContent = "coordinacion central · todas las areas en sincronia";
+      } else {
+        name.textContent = nd.name.toUpperCase() + " · " + nd.code;
+        role.textContent = nd.role;
+      }
+    }
+
+    function addLog(afrom, ato, text, color) {
+      var log = $("#netLog");
+      if (!log) return;
+      var d = new Date();
+      var time = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + ":" + String(d.getSeconds()).padStart(2, "0");
+      var div = document.createElement("div");
+      div.className = "lmsg";
+      div.style.setProperty("--mcolor", color);
+      var s = document.createElement("span");
+      s.className = "lfrom";
+      s.textContent = afrom + " → " + ato;
+      div.appendChild(s);
+      div.appendChild(document.createTextNode("  " + time + "  " + text));
+      log.insertBefore(div, log.firstChild);
+      while (log.children.length > 7) log.removeChild(log.lastChild);
+    }
+
+    function spawnPacket() {
+      if (!netRunning || reduced || !nodes.length) return;
+      var msg = MSGS[Math.floor(Math.random() * MSGS.length)];
+      var a = nodeIndex(msg[0]), b = nodeIndex(msg[1]);
+      if (typeof a !== "number" || typeof b !== "number") return;
+      packets.push({ a: a, b: b, text: msg[2], p: 0, speed: 0.0045 + Math.random() * 0.002, color: nodes[a].color });
+      msgSent++;
+      var ce = $("#cntMsgs"); if (ce) ce.textContent = msgSent;
+      addLog(msg[0], msg[1], msg[2], nodes[a].color);
+      if (packets.length > 11) packets.shift();
+    }
+
+    function hexA(hex, a) {
+      var h = hex.replace("#", "");
+      var r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+      return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    }
+
+    function roundRect(x, y, w, h, rr) {
+      nctx.beginPath();
+      nctx.moveTo(x + rr, y);
+      nctx.arcTo(x + w, y, x + w, y + h, rr);
+      nctx.arcTo(x + w, y + h, x, y + h, rr);
+      nctx.arcTo(x, y + h, x, y, rr);
+      nctx.arcTo(x, y, x + w, y, rr);
+      nctx.closePath();
+    }
+
+    function pillText(x, y, text, color) {
+      nctx.font = "9px Consolas, monospace";
+      var w = nctx.measureText(text).width + 12;
+      var h = 15;
+      var rx = x - w / 2, ry = y - h / 2;
+      rx = Math.max(4, Math.min(netW - w - 4, rx));
+      nctx.fillStyle = "rgba(4,7,12,0.78)";
+      roundRect(rx, ry, w, h, 7);
+      nctx.fill();
+      nctx.strokeStyle = hexA(color, 0.5);
+      nctx.lineWidth = 1;
+      roundRect(rx, ry, w, h, 7);
+      nctx.stroke();
+      nctx.fillStyle = "#dce7ff";
+      nctx.textAlign = "center";
+      nctx.textBaseline = "middle";
+      nctx.fillText(text, rx + w / 2, y + 0.5);
+      nctx.textBaseline = "alphabetic";
+    }
+
+    function clampLabel(x, text, size, font) {
+      nctx.font = size + "px " + font;
+      var w = nctx.measureText(text).width;
+      var w2 = w / 2;
+      return Math.min(netW - w2 - 6, Math.max(w2 + 6, x));
     }
 
     function netFrame() {
       if (!netRunning) return;
       var t = Date.now() / 1000;
       nctx.clearRect(0, 0, netW, netH);
-      var i, p;
 
-      for (i = 0; i < edges.length; i++) {
-        var a = nodes[edges[i][0]], b = nodes[edges[i][1]];
-        var on = hoverNode === edges[i][0] || hoverNode === edges[i][1];
-        var grad = nctx.createLinearGradient(a.x, a.y, b.x, b.y);
-        grad.addColorStop(0, "rgba(120,170,255," + (on ? 0.55 : 0.14) + ")");
-        grad.addColorStop(1, "rgba(80,220,190," + (on ? 0.55 : 0.14) + ")");
-        nctx.strokeStyle = grad;
-        nctx.lineWidth = on ? 1.6 : 1;
+      var cx = netW / 2, cy = netH / 2;
+      var ringR = Math.min(netW, netH) * 0.36;
+      var rr;
+      nctx.save();
+      nctx.strokeStyle = "rgba(255,255,255,0.05)";
+      nctx.lineWidth = 1;
+      nctx.setLineDash([2, 6]);
+      for (rr = 1; rr <= 2; rr++) {
         nctx.beginPath();
-        nctx.moveTo(a.x, a.y);
-        nctx.lineTo(b.x, b.y);
+        nctx.arc(cx, cy, ringR * rr / 2, 0, Math.PI * 2);
         nctx.stroke();
-        if (!reduced) {
-          for (p = 0; p < 2; p++) {
-            var ph = (t * 0.4 + p / 2 + i * 0.11) % 1;
-            nctx.beginPath();
-            nctx.arc(a.x + (b.x - a.x) * ph, a.y + (b.y - a.y) * ph, 2, 0, Math.PI * 2);
-            nctx.fillStyle = on ? "#eaf4ff" : "rgba(200,225,255,0.7)";
-            nctx.fill();
+      }
+      nctx.setLineDash([]);
+      nctx.beginPath();
+      nctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      nctx.strokeStyle = "rgba(120,170,255,0.18)";
+      nctx.stroke();
+      nctx.restore();
+
+      nctx.save();
+      nctx.strokeStyle = "rgba(255,255,255,0.04)";
+      nctx.lineWidth = 1;
+      for (var k = 1; k < nodes.length; k++) {
+        nctx.beginPath();
+        nctx.moveTo(cx, cy);
+        nctx.lineTo(nodes[k].x, nodes[k].y);
+        nctx.stroke();
+      }
+      nctx.restore();
+
+      var i, j;
+      for (i = 0; i < edges.length; i++) {
+        var ea = nodes[edges[i][0]], eb = nodes[edges[i][1]];
+        var on = activeIdx(edges[i][0]) || activeIdx(edges[i][1]);
+        var grad = nctx.createLinearGradient(ea.x, ea.y, eb.x, eb.y);
+        grad.addColorStop(0, "rgba(120,170,255," + (on ? 0.6 : 0.13) + ")");
+        grad.addColorStop(1, "rgba(80,220,190," + (on ? 0.6 : 0.13) + ")");
+        nctx.strokeStyle = grad;
+        nctx.lineWidth = on ? 1.8 : 1;
+        nctx.beginPath();
+        nctx.moveTo(ea.x, ea.y);
+        nctx.lineTo(eb.x, eb.y);
+        nctx.stroke();
+      }
+
+      if (!reduced) {
+        for (i = packets.length - 1; i >= 0; i--) {
+          var pk = packets[i];
+          pk.p += pk.speed;
+          if (pk.p >= 1) {
+            ripples.push({ x: nodes[pk.b].x, y: nodes[pk.b].y, life: 1 });
+            packets.splice(i, 1);
+            continue;
           }
+          var ax = nodes[pk.a].x, ay = nodes[pk.a].y;
+          var bx = nodes[pk.b].x, by = nodes[pk.b].y;
+          var dxn = bx - ax, dyn = by - ay;
+          var len = Math.sqrt(dxn * dxn + dyn * dyn) || 1;
+          var px = ax + dxn * pk.p, py = ay + dyn * pk.p;
+          var nx = -dyn / len, ny = dxn / len;
+          nctx.beginPath();
+          nctx.arc(px, py, 2.6, 0, Math.PI * 2);
+          nctx.fillStyle = pk.color;
+          nctx.fill();
+          var disp = pk.text.length > 26 ? pk.text.slice(0, 26) + "…" : pk.text;
+          pillText(px + nx * 14, py + ny * 14, disp, pk.color);
+        }
+
+        for (i = ripples.length - 1; i >= 0; i--) {
+          var rp = ripples[i];
+          rp.life -= 0.035;
+          if (rp.life <= 0) { ripples.splice(i, 1); continue; }
+          nctx.beginPath();
+          nctx.arc(rp.x, rp.y, (1 - rp.life) * 22 + 4, 0, Math.PI * 2);
+          nctx.strokeStyle = "rgba(160,210,255," + (rp.life * 0.5).toFixed(3) + ")";
+          nctx.lineWidth = 1.4;
+          nctx.stroke();
         }
       }
 
       for (i = 0; i < nodes.length; i++) {
         var nd = nodes[i];
-        var hl = hoverNode === i;
+        var hl = activeIdx(i);
         var breath = 1 + Math.sin(t * 1.4 + i) * 0.06;
-        var r = (nd.a.core ? 11 : 7) * breath;
-        var glow = nctx.createRadialGradient(nd.x, nd.y, 0, nd.x, nd.y, r * 3.4);
-        glow.addColorStop(0, "rgba(140,190,255," + (hl ? 0.4 : 0.18) + ")");
-        glow.addColorStop(1, "rgba(140,190,255,0)");
-        nctx.fillStyle = glow;
+        var r = (nd.core ? 12 : 8) * breath;
+        var gcol = nd.color || "#7fb2ff";
+        var cg = nctx.createRadialGradient(nd.x, nd.y, 0, nd.x, nd.y, r * 3.6);
+        cg.addColorStop(0, hexA(gcol, hl ? 0.5 : 0.22));
+        cg.addColorStop(1, hexA(gcol, 0));
+        nctx.fillStyle = cg;
         nctx.beginPath();
-        nctx.arc(nd.x, nd.y, r * 3.4, 0, Math.PI * 2);
+        nctx.arc(nd.x, nd.y, r * 3.6, 0, Math.PI * 2);
         nctx.fill();
         nctx.beginPath();
         nctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
-        nctx.fillStyle = nd.a.core ? "#eaf2ff" : (hl ? "#d7e6ff" : "#7fb2ff");
+        nctx.fillStyle = nd.core ? "#eaf2ff" : gcol;
         nctx.fill();
-        if (nd.a.core) {
+        if (nd.core) {
           nctx.beginPath();
           nctx.arc(nd.x, nd.y, r + 5, 0, Math.PI * 2);
-          nctx.strokeStyle = "rgba(255,255,255," + (0.4 + 0.2 * Math.sin(t * 2)) + ")";
+          nctx.strokeStyle = "rgba(255,255,255," + (0.35 + 0.2 * Math.sin(t * 2)) + ")";
           nctx.lineWidth = 1;
           nctx.stroke();
         }
-        nctx.font = (hl ? "700 " : "500 ") + (nd.a.core ? 12 : 10) + "px Consolas, monospace";
+        if (hl && !nd.core) {
+          nctx.beginPath();
+          nctx.arc(nd.x, nd.y, r + 7, 0, Math.PI * 2);
+          nctx.strokeStyle = hexA(gcol, 0.9);
+          nctx.lineWidth = 1;
+          nctx.stroke();
+        }
+        var label = nd.name.toUpperCase();
+        var lx = clampLabel(nd.x, label, nd.core ? 11 : 10, "Consolas, monospace");
+        nctx.fillStyle = hl ? "#fff" : "rgba(226,236,255,0.78)";
         nctx.textAlign = "center";
-        nctx.fillStyle = hl ? "#fff" : "rgba(226,236,255,0.75)";
-        nctx.fillText(nd.a.name, nd.x, nd.y + r + 15);
+        nctx.fillText(label, lx, nd.y + r + 15);
       }
 
       requestAnimationFrame(netFrame);
     }
 
-    netResize();
-    window.addEventListener("resize", netResize);
-    netCanvas.addEventListener("mousemove", function (e) {
-      var r = netCanvas.getBoundingClientRect();
-      var mx = e.clientX - r.left, my = e.clientY - r.top;
-      var best = -1, bd = 26;
+    function nearestNode(mx, my, maxD) {
+      var best = -1, bd = maxD;
       for (var i = 0; i < nodes.length; i++) {
         var dx = nodes[i].x - mx, dy = nodes[i].y - my;
         var d = Math.sqrt(dx * dx + dy * dy);
         if (d < bd) { bd = d; best = i; }
       }
-      hoverNode = best;
+      return best;
+    }
+
+    netResize();
+    window.addEventListener("resize", netResize);
+    setInterval(spawnPacket, 520);
+
+    var cntA = $("#cntAgents"); if (cntA) cntA.textContent = DEPTS.length;
+    var cntM = $("#cntMsgs"); if (cntM) cntM.textContent = msgSent;
+
+    var legend = $("#deptLegend");
+    if (legend) {
+      DEPTS.forEach(function (d) {
+        var chip = document.createElement("button");
+        chip.className = "dept-chip";
+        chip.style.setProperty("--c", d.color);
+        var dot = document.createElement("span");
+        dot.className = "d-dot";
+        var nm = document.createElement("span");
+        nm.className = "d-name";
+        nm.textContent = d.name;
+        var cd = document.createElement("span");
+        cd.className = "d-code";
+        cd.textContent = d.code;
+        chip.appendChild(dot); chip.appendChild(nm); chip.appendChild(cd);
+        chip.addEventListener("click", function () {
+          var idx = nodeByKey[d.key];
+          if (typeof idx === "number") {
+            focusNode = idx;
+            hoverNode = -1;
+            netHud();
+            setTimeout(function () { if (focusNode === nodeByKey[d.key]) focusNode = -1; }, 4000);
+          }
+        });
+        legend.appendChild(chip);
+      });
+    }
+
+    netCanvas.addEventListener("mousemove", function (e) {
+      var re = netCanvas.getBoundingClientRect();
+      hoverNode = nearestNode(e.clientX - re.left, e.clientY - re.top, 28);
       netHud();
     });
     netCanvas.addEventListener("mouseleave", function () {
       hoverNode = -1;
       netHud();
     });
+    netCanvas.addEventListener("click", function (e) {
+      var re = netCanvas.getBoundingClientRect();
+      var idx = nearestNode(e.clientX - re.left, e.clientY - re.top, 42);
+      focusNode = idx >= 0 ? idx : -1;
+      hoverNode = -1;
+      netHud();
+      if (focusNode >= 0) {
+        setTimeout(function () { focusNode = -1; netHud(); }, 4000);
+      }
+    });
+
     new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           netRunning = true;
-          if (!reduced) netFrame();
+          netFrame();
         } else {
           netRunning = false;
         }

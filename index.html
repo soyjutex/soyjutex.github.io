@@ -136,15 +136,28 @@
 
     <section id="red" class="section alt">
       <div class="container">
-        <p class="kicker" data-reveal>/ Red de agentes</p>
-        <h2 class="mega" data-reveal>AGENTES EN SINCRON&Iacute;A</h2>
+        <p class="kicker" data-reveal>/ Digital workforce</p>
+        <h2 class="mega scramble" data-reveal>LA EMPRESA QUE SE OPERA SOLA</h2>
+        <p class="manifesto" data-reveal>
+          Esto es lo que viene: un equipo de agentes especializados por departamento, comunic&aacute;ndose y decidiendo entre ellos en tiempo real como una empresa completa &mdash; a la velocidad de las m&aacute;quinas. As&iacute; va a operar toda organizaci&oacute;n.
+        </p>
         <div class="net-wrap" data-reveal>
+          <div class="net-bar">
+            <span class="net-bar-t">sincronia://core&nbsp;&nbsp;&bull;&nbsp;&nbsp;digital-workforce</span>
+            <span class="net-bar-live"><i></i> en vivo</span>
+          </div>
           <canvas id="agents" aria-hidden="true"></canvas>
           <div class="net-hud" id="netHud">
             <span class="hud-name">JUTEX Core</span>
-            <span class="hud-role">n&uacute;cleo de coordinaci&oacute;n</span>
+            <span class="hud-role">coordinaci&oacute;n central</span>
           </div>
+          <div class="net-counters">
+            <span>agentes <b id="cntAgents">0</b></span>
+            <span>mensajes <b id="cntMsgs">0</b></span>
+          </div>
+          <div class="net-log" id="netLog" aria-hidden="true"></div>
         </div>
+        <div class="dept-legend" id="deptLegend" data-reveal></div>
       </div>
     </section>
 
