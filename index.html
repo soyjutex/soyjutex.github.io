@@ -3,93 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>soyjutex — Ingeniero & Creador</title>
-  <meta name="description" content="Sitio personal de soyjutex: ingeniero, creador y explorador de ideas." />
+  <title>JUTEX — Automatizaci&oacute;n impulsada por IA</title>
+  <meta name="description" content="JUTEX. Construimos automatizaci&oacute;n impulsada por inteligencia artificial." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <canvas id="stars" aria-hidden="true"></canvas>
+
   <header class="nav">
     <div class="container nav-inner">
-      <span class="logo">soyjutex<span class="dot">.</span></span>
-      <nav>
-        <a href="#inicio">Inicio</a>
-        <a href="#sobre">Sobre m&iacute;</a>
-        <a href="#proyectos">Proyectos</a>
+      <span class="logo">JUTE<span class="accent">X</span></span>
+      <nav class="menu">
+        <a href="#mision">Misi&oacute;n</a>
+        <a href="#vision">Visi&oacute;n</a>
         <a href="#contacto">Contacto</a>
       </nav>
     </div>
   </header>
 
   <main>
-    <section id="inicio" class="hero">
+    <section class="hero">
+      <div class="container hero-inner">
+        <p class="eyebrow" data-reveal>Automatizaci&oacute;n por inteligencia artificial</p>
+        <h1 class="hero-title">
+          <span class="line" data-reveal>EL FUTURO</span>
+          <span class="line" data-reveal>SE</span>
+          <span class="line accent" data-reveal>AUTOMATIZA</span>
+        </h1>
+        <p class="console" id="console" data-reveal></p>
+        <a class="btn" href="#mision" data-reveal>Iniciar misi&oacute;n &mdash;</a>
+      </div>
+    </section>
+
+    <section id="mision" class="section">
       <div class="container">
-        <p class="eyebrow">Hola, soy</p>
-        <h1>soyjutex</h1>
-        <p class="tagline">Ingeniero &amp; creador de cosas que funcionan.</p>
-        <p class="hero-body">
-          Ac&aacute; vas a encontrar mis proyectos, mis ideas y mi trabajo.
-          Este sitio es mi rincon en internet.
-        </p>
-        <div class="cta">
-          <a class="btn btn-primary" href="#proyectos">Ver proyectos</a>
-          <a class="btn btn-secondary" href="#contacto">Hablemos</a>
+        <p class="kicker" data-reveal>/ Misión</p>
+        <h2 class="mega" data-reveal>CONSTRUIMOS AUTOMATIZACI&Oacute;N IMPULSADA POR INTELIGENCIA ARTIFICIAL.</h2>
+        <div class="manifesto" data-reveal>
+          <p>M&aacute;quinas que piensan. Sistemas que se ejecutan solos. Procesos que dejan de pedir permiso.</p>
         </div>
       </div>
     </section>
 
-    <section id="sobre" class="section">
+    <section id="vision" class="section alt">
       <div class="container">
-        <h2>Sobre m&iacute;</h2>
-        <p>
-          Soy un ingeniero al que le gusta armar, desarmar y entender c&oacute;mo
-          funcionan las cosas. Me gusta el software, la automatizaci&oacute;n y las
-          ideas que se vuelven reales.
-        </p>
-        <ul class="skills">
-          <li>Desarrollo de software</li>
-          <li>Automatizaci&oacute;n &amp; agentes IA</li>
-          <li>Buenas practicas con git</li>
-          <li>Resolver problemas, no crear m&aacute;s</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="proyectos" class="section alt">
-      <div class="container">
-        <h2>Proyectos</h2>
+        <p class="kicker" data-reveal>/ Pilares</p>
         <div class="grid">
-          <article class="card">
-            <h3>Esta web</h3>
-            <p>Mi sitio personal publicado en GitHub Pages. Simple, r&aacute;pido y gratis.</p>
+          <article class="card" data-reveal>
+            <span class="num">01</span>
+            <h3>Automatizaci&oacute;n</h3>
+            <p>Lo que se puede ejecutar solo, se ejecuta solo. Cero fricci&oacute;n, cero horas muertas.</p>
           </article>
-          <article class="card">
-            <h3>Pr&oacute;ximamente</h3>
-            <p>El invento que estoy construyendo va a aparecer ac&aacute;.</p>
+          <article class="card" data-reveal>
+            <span class="num">02</span>
+            <h3>Inteligencia</h3>
+            <p>Modelos que entienden contexto, toman decisiones y aprenden de cada ciclo.</p>
           </article>
-          <article class="card">
-            <h3>Ideas en marcha</h3>
-            <p>Cada proyecto que arranco se va a sumar a esta lista.</p>
+          <article class="card" data-reveal>
+            <span class="num">03</span>
+            <h3>Escala</h3>
+            <p>Arquitecturas pensadas para crecer sin que nadie tenga que apretar el bot&oacute;n.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section class="quote">
+      <div class="container">
+        <p class="big-quote" data-reveal>&ldquo;No trabajamos para el futuro. Lo automatizamos.&rdquo;</p>
+        <p class="quote-by" data-reveal>&mdash; JUTEX</p>
       </div>
     </section>
 
     <section id="contacto" class="section">
-      <div class="container">
-        <h2>Contacto</h2>
-        <p>Quer&eacute;s hablar de algo, colaborar o preguntar? Escribime.</p>
-        <p class="contact-links">
-          <a href="https://github.com/soyjutex" target="_blank" rel="noopener">GitHub</a>
+      <div class="container center">
+        <p class="kicker" data-reveal>/ Contacto</p>
+        <h2 class="mega" data-reveal>INICIEMOS&nbsp;UNA&nbsp;MISI&Oacute;N</h2>
+        <div class="links" data-reveal>
+          <a href="mailto:soyjutex@users.noreply.github.com">Escribinos</a>
           <span class="sep">&middot;</span>
-          <a href="mailto:soyjutex@users.noreply.github.com">Email</a>
-        </p>
+          <a href="https://github.com/soyjutex" target="_blank" rel="noopener">GitHub</a>
+        </div>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="container">
-      <p>&copy; <span id="year"></span> soyjutex &mdash; hecho con &hearts; y GitHub Pages.</p>
+      <p>JUTEX &copy; <span id="year"></span> &mdash; Hecho para el futuro.</p>
     </div>
   </footer>
 
