@@ -249,6 +249,9 @@
     var original = el.textContent;
     var glyphs = "!<>-_\\/[]{}—=+*^?#01ABJX";
     el.addEventListener("mouseenter", function () {
+      var h = el.offsetHeight + "px";
+      el.style.height = h;
+      el.style.overflow = "hidden";
       var frame = 0;
       var timer = setInterval(function () {
         var out = "";
@@ -261,6 +264,8 @@
         if (frame > original.length + 12) {
           clearInterval(timer);
           el.textContent = original;
+          el.style.height = "";
+          el.style.overflow = "";
         }
       }, 16);
     });
@@ -413,49 +418,156 @@
   setInterval(tick, 1000);
   tick();
 
-  /* ---------- Matrix rain ---------- */
-  var rainCanvas = $("#rain");
-  if (rainCanvas) {
-    var rctx = rainCanvas.getContext("2d");
-    var colsRain = 0, drops = [], rained = false;
-    var glyphs = "アイウエオカキクケコサシスセソ0123456789ABCDEF";
-    function rainInit() {
-      var W = rainCanvas.clientWidth;
-      var H = rainCanvas.clientHeight;
-      rainCanvas.width = W * dpr;
-      rainCanvas.height = H * dpr;
-      rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var fs = 14;
-      colsRain = Math.ceil(W / fs);
-      drops = [];
-      for (var i = 0; i < colsRain; i++) drops[i] = Math.random() * -40;
+  /* ---------- Agent network ---------- */
+  var netCanvas = $("#agents");
+  if (netCanvas) {
+    var nctx = netCanvas.getContext("2d");
+    var netRunning = false;
+    var agentData = [
+      { name: "JUTEX", role: "nucleo de coordinacion", core: true },
+      { name: "Cerebro", role: "investigacion y sintesis", core: false },
+      { name: "Fnanzas", role: "finanzas y metricas", core: false },
+      { name: "Hermes", role: "mensajeria y coordinacion", core: false },
+      { name: "Ingeniero", role: "automatizacion y control", core: false },
+      { name: "WebSoyjuli", role: "desarrollo web", core: false },
+      { name: "Jefe", role: "orquestacion de agentes", core: false },
+      { name: "Noticias", role: "radar de noticias", core: false },
+      { name: "IngenieroGoose", role: "ingenieria y sistemas", core: false },
+      { name: "IngenieroZeroClaw", role: "operaciones", core: false }
+    ];
+    var nodes = [], edges = [];
+    var netW = 0, netH = 0, hoverNode = -1;
+
+    function netLayout() {
+      nodes = [];
+      var cx = netW / 2, cy = netH / 2;
+      var rx = Math.min(netW, netH) * 0.36;
+      var ry = Math.min(netW, netH) * 0.3;
+      agentData.forEach(function (a) {
+        if (a.core) {
+          nodes.push({ x: cx, y: cy, a: a });
+        } else {
+          var ang = (nodes.length - 1) / (agentData.length - 1) * Math.PI * 2 - Math.PI / 2;
+          nodes.push({
+            x: cx + Math.cos(ang) * rx,
+            y: cy + Math.sin(ang) * ry,
+            a: a
+          });
+        }
+      });
+      edges = [];
+      for (var i = 1; i < nodes.length; i++) edges.push([0, i]);
+      edges.push([4, 5], [2, 6], [1, 2], [3, 6], [7, 1], [4, 9], [8, 5]);
     }
-    function rainDraw() {
-      if (!rained) return;
-      rctx.fillStyle = "rgba(4,7,12,0.14)";
-      rctx.fillRect(0, 0, rainCanvas.clientWidth, rainCanvas.clientHeight);
-      rctx.font = "14px monospace";
-      for (var i = 0; i < colsRain; i++) {
-        var ch = glyphs[Math.floor(Math.random() * glyphs.length)];
-        rctx.fillStyle = Math.random() > 0.975 ? "#d8ffea" : "#3ddc84";
-        rctx.fillText(ch, i * 14, drops[i] * 14);
-        drops[i]++;
-        if (drops[i] * 14 > rainCanvas.clientHeight && Math.random() > 0.975) drops[i] = 0;
+
+    function netResize() {
+      var r = netCanvas.getBoundingClientRect();
+      netW = Math.max(200, r.width);
+      netH = Math.max(240, r.height);
+      netCanvas.width = netW * dpr;
+      netCanvas.height = netH * dpr;
+      nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      netLayout();
+    }
+
+    function netHud() {
+      var el = $("#netHud");
+      if (!el) return;
+      var nd = hoverNode >= 0 ? nodes[hoverNode] : agentData[0];
+      var name = el.children[0], role = el.children[1];
+      if (name) name.textContent = nd.name;
+      if (role) role.textContent = hoverNode >= 0 ? "/ " + nd.a.role : "/ nucleo central";
+    }
+
+    function netFrame() {
+      if (!netRunning) return;
+      var t = Date.now() / 1000;
+      nctx.clearRect(0, 0, netW, netH);
+      var i, p;
+
+      for (i = 0; i < edges.length; i++) {
+        var a = nodes[edges[i][0]], b = nodes[edges[i][1]];
+        var on = hoverNode === edges[i][0] || hoverNode === edges[i][1];
+        var grad = nctx.createLinearGradient(a.x, a.y, b.x, b.y);
+        grad.addColorStop(0, "rgba(120,170,255," + (on ? 0.55 : 0.14) + ")");
+        grad.addColorStop(1, "rgba(80,220,190," + (on ? 0.55 : 0.14) + ")");
+        nctx.strokeStyle = grad;
+        nctx.lineWidth = on ? 1.6 : 1;
+        nctx.beginPath();
+        nctx.moveTo(a.x, a.y);
+        nctx.lineTo(b.x, b.y);
+        nctx.stroke();
+        if (!reduced) {
+          for (p = 0; p < 2; p++) {
+            var ph = (t * 0.4 + p / 2 + i * 0.11) % 1;
+            nctx.beginPath();
+            nctx.arc(a.x + (b.x - a.x) * ph, a.y + (b.y - a.y) * ph, 2, 0, Math.PI * 2);
+            nctx.fillStyle = on ? "#eaf4ff" : "rgba(200,225,255,0.7)";
+            nctx.fill();
+          }
+        }
       }
-      requestAnimationFrame(rainDraw);
+
+      for (i = 0; i < nodes.length; i++) {
+        var nd = nodes[i];
+        var hl = hoverNode === i;
+        var breath = 1 + Math.sin(t * 1.4 + i) * 0.06;
+        var r = (nd.a.core ? 11 : 7) * breath;
+        var glow = nctx.createRadialGradient(nd.x, nd.y, 0, nd.x, nd.y, r * 3.4);
+        glow.addColorStop(0, "rgba(140,190,255," + (hl ? 0.4 : 0.18) + ")");
+        glow.addColorStop(1, "rgba(140,190,255,0)");
+        nctx.fillStyle = glow;
+        nctx.beginPath();
+        nctx.arc(nd.x, nd.y, r * 3.4, 0, Math.PI * 2);
+        nctx.fill();
+        nctx.beginPath();
+        nctx.arc(nd.x, nd.y, r, 0, Math.PI * 2);
+        nctx.fillStyle = nd.a.core ? "#eaf2ff" : (hl ? "#d7e6ff" : "#7fb2ff");
+        nctx.fill();
+        if (nd.a.core) {
+          nctx.beginPath();
+          nctx.arc(nd.x, nd.y, r + 5, 0, Math.PI * 2);
+          nctx.strokeStyle = "rgba(255,255,255," + (0.4 + 0.2 * Math.sin(t * 2)) + ")";
+          nctx.lineWidth = 1;
+          nctx.stroke();
+        }
+        nctx.font = (hl ? "700 " : "500 ") + (nd.a.core ? 12 : 10) + "px Consolas, monospace";
+        nctx.textAlign = "center";
+        nctx.fillStyle = hl ? "#fff" : "rgba(226,236,255,0.75)";
+        nctx.fillText(nd.a.name, nd.x, nd.y + r + 15);
+      }
+
+      requestAnimationFrame(netFrame);
     }
-    rainInit();
-    window.addEventListener("resize", rainInit);
+
+    netResize();
+    window.addEventListener("resize", netResize);
+    netCanvas.addEventListener("mousemove", function (e) {
+      var r = netCanvas.getBoundingClientRect();
+      var mx = e.clientX - r.left, my = e.clientY - r.top;
+      var best = -1, bd = 26;
+      for (var i = 0; i < nodes.length; i++) {
+        var dx = nodes[i].x - mx, dy = nodes[i].y - my;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < bd) { bd = d; best = i; }
+      }
+      hoverNode = best;
+      netHud();
+    });
+    netCanvas.addEventListener("mouseleave", function () {
+      hoverNode = -1;
+      netHud();
+    });
     new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          rained = true;
-          if (!reduced) rainDraw();
+          netRunning = true;
+          if (!reduced) netFrame();
         } else {
-          rained = false;
+          netRunning = false;
         }
       });
-    }, { threshold: 0.1 }).observe(rainCanvas);
+    }, { threshold: 0.1 }).observe(netCanvas);
   }
 
   /* ---------- Toasts ---------- */

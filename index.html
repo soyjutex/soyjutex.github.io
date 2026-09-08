@@ -34,9 +34,9 @@
         <span></span><span></span><span></span>
       </button>
       <nav class="menu" id="menu">
-        <a href="#sistema" data-nav>Sistema</a>
         <a href="#mision" data-nav>Misi&oacute;n</a>
         <a href="#pilares" data-nav>Pilares</a>
+        <a href="#red" data-nav>Red</a>
         <a href="#terminal" data-nav>Terminal</a>
         <a href="#contacto" data-nav>Contacto</a>
         <span class="chip online"><i></i> En l&iacute;nea</span>
@@ -56,7 +56,7 @@
         </h1>
         <div class="console" id="console" data-reveal></div>
         <div class="cta" data-reveal>
-          <a class="btn magnetic" href="#sistema">Iniciar misi&oacute;n</a>
+          <a class="btn magnetic" href="#mision">Iniciar misi&oacute;n</a>
           <a class="btn ghost magnetic" href="#terminal">Probar terminal</a>
         </div>
         <div class="scroll-hint" data-reveal><span></span></div>
@@ -81,28 +81,6 @@
           <span class="stat-value"><span id="timer">00:00:00</span></span>
           <span class="stat-label">Tiempo de misi&oacute;n</span>
         </div>
-      </div>
-    </section>
-
-    <section id="sistema" class="section alt">
-      <div class="container center">
-        <p class="kicker" data-reveal>/ Sistema</p>
-        <h2 class="mega" data-reveal>SISTEMA EN L&Iacute;NEA</h2>
-        <div class="core" data-reveal>
-          <div class="core-pulse"></div>
-          <div class="orbit o1"><i></i></div>
-          <div class="orbit o2"><i></i></div>
-          <div class="orbit o3"><i></i></div>
-          <span class="core-label">n&uacute;cleo</span>
-        </div>
-        <div class="sys-chips" data-reveal>
-          <span class="chip online"><i></i> N&uacute;cleo IA: estable</span>
-          <span class="chip"><i></i> Automatizaci&oacute;n: 100%</span>
-          <span class="chip"><i></i> Escala: ilimitada</span>
-        </div>
-      </div>
-      <div class="rain-band">
-        <canvas id="rain" aria-hidden="true"></canvas>
       </div>
     </section>
 
@@ -152,6 +130,20 @@
             <h3>Escala</h3>
             <p>Arquitecturas pensadas para crecer sin que nadie tenga que apretar el bot&oacute;n.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="red" class="section alt">
+      <div class="container">
+        <p class="kicker" data-reveal>/ Red de agentes</p>
+        <h2 class="mega" data-reveal>AGENTES EN SINCRON&Iacute;A</h2>
+        <div class="net-wrap" data-reveal>
+          <canvas id="agents" aria-hidden="true"></canvas>
+          <div class="net-hud" id="netHud">
+            <span class="hud-name">JUTEX Core</span>
+            <span class="hud-role">n&uacute;cleo de coordinaci&oacute;n</span>
+          </div>
         </div>
       </div>
     </section>
